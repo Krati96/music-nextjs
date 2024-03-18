@@ -1,8 +1,11 @@
 // import Image from "next/image";
 
 import FeaturedCourses from "@/components/FeaturedCourses";
+import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
+import Instructors from "@/components/Instructors";
 import TestimonialCards from "@/components/TestimonialCards";
+import UpcomingWebinars from "@/components/UpcomingWebinars";
 import WhyChooseUs from "@/components/WhyChooseUs";
 
 export default function Home() {
@@ -13,6 +16,9 @@ export default function Home() {
       <FeaturedCourses />
       <WhyChooseUs />
       <TestimonialCards />
+      <UpcomingWebinars />
+      <Instructors />
+      <Footer />
     </main>
     // <main className="flex min-h-screen flex-col items-center justify-between p-24">
     //   <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
