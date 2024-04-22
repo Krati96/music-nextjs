@@ -37,7 +37,7 @@ export async function POST(request:NextRequest) {
             success: true,            
         })
 
-        response.cookies.set("token",token,{httpOnly:true})
+        response.cookies.set("token",token,{httpOnly:true}) // Next js m cookies NextResponse s access kr lete hain node m packages install krne padte hain.
 
         return response;
 

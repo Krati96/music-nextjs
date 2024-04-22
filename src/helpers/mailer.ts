@@ -1,51 +1,52 @@
+import nodemailer from 'nodemailer';
 import User from "@/models/userModel";
-import nodemailer from "nodemailer";
 import bcryptjs from 'bcryptjs';
 
-export const sendEmail = async ({ email, emailType, userId } : any) => {
-  try {
-    const hashedToken = await bcryptjs.hash(userId.toString(),10)
-    //todo configure mail for usage
-    if(emailType === "VERIFY"){
-        await User.findByIdAndUpdate(userId,
-            {verifyToken: hashedToken, verifyTokenExpiry: Date.now() + 3600000})
-    }else if(emailType === "RESET"){
-        await User.findByIdAndUpdate(userId,
-            {forgotPasswordToken: hashedToken, forgotPasswordTokenExpiry: Date.now() + 2400000})
-    }
 
-    var transport = nodemailer.createTransport({
-        host: "sandbox.smtp.mailtrap.io",
-        port: 2525,
-        auth: {
-          user: "cbe6854f0aab6d", //dont use like that ye sab env m hona chahiye
-          pass: "********383e" //dont use like that ye sab env m hona chahiye
+export const sendEmail = async({email, emailType, userId}:any) => {
+    try {
+        // create a hased token
+        const hashedToken = await bcryptjs.hash(userId.toString(), 10)
+
+        if (emailType === "VERIFY") {
+            await User.findByIdAndUpdate(userId,
+                {$set:
+                    {
+                        verifyToken: hashedToken,
+                        verifyTokenExpiry: new Date(Date.now() + 3600000) // expires after 1 hour
+                    }
+                } )
+               
+        } else if (emailType === "RESET"){
+            await User.findByIdAndUpdate(userId, 
+                {forgotPasswordToken: hashedToken, forgotPasswordTokenExpiry: Date.now() + 3600000})
         }
-      });
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      secure: false, // Use `true` for port 465, `false` for all other ports
-      auth: {
-        user: "krati.mv2724@gmail.com",
-        pass: "jn7jnAPss4f63QBp6D",
-      },
-    });
+        var transport = nodemailer.createTransport({
+            host: "sandbox.smtp.mailtrap.io",
+            port: 2525,
+            auth: {
+              user: "3fd364695517df",
+              pass: "7383d58fd399cf"
+              //TODO: add these credentials to .env file
+            }
+          });
 
-    const mailOptions = {
-      from: 'kv.krati.varshney@gmail.com', // sender address
-      to: email, // list of receivers
-      subject: emailType === "VERIFY" ? "Hello ✔" : "Reset your password", // Subject line
-    //   text: "Hello world?", // plain text body
-      html: `<p>Click <a href="${process.env.DOMAIN}/verifyemail?token=${hashedToken}">here</a> to ${emailType === "VERIFY" ? "Verify your email" : "Reset your password"} or copy and paste the link below in your browser.<br>${process.env.DOMAIN}/verifyemail?token=${hashedToken}</p>`, // html body
-    };
 
-    const mailRes = await transporter.sendMail(mailOptions)
-    return mailRes
+        const mailOptions = {
+            from: 'hitesh@gmail.com',
+            to: email,
+            subject: emailType === "VERIFY" ? "Verify your email" : "Reset your password",
+            html: `<p>Click <a href="${process.env.DOMAIN}/verifyemail?token=${hashedToken}">here</a> to ${emailType === "VERIFY" ? "verify your email" : "reset your password"}
+            or copy and paste the link below in your browser. <br> ${process.env.DOMAIN}/verifyemail?token=${hashedToken}
+            </p>`
+        }
 
-  } catch (error:any) {
-    console.log(error)
-    throw new Error(error.message)
-  }
-};
+        const mailresponse = await transport.sendMail
+        (mailOptions);
+        return mailresponse;
+
+    } catch (error:any) {
+        throw new Error(error.message);
+    }
+}
